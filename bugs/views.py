@@ -5,7 +5,7 @@ from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout, login, authenticate
 from bug_tracker import settings
-from bugs.forms import TicketForm, LoginForm
+from bugs.forms import TicketForm, LoginForm, CustomUserForm
 from bugs.models import Ticket
 from django.utils import timezone
 
@@ -42,9 +42,7 @@ def newTicketView(request):
                 created_time=time,
                 status="NEW",
             )
-        return HttpResponseRedirect(
-            reverse("ticketDetailPage", kwargs={"id": ticket.id})
-        )
+        return HttpResponseRedirect(reverse("ticketDetail", kwargs={"id": ticket.id}))
     form = TicketForm()
     context["form"] = form
     return render(request, html, context)
@@ -69,6 +67,16 @@ def assignSelf(request, id):
 
 
 @login_required
+def returnTicket(request, id):
+    ticket = get_object_or_404(Ticket, id=id)
+    ticket.assigned_to = None
+    ticket.completed_by = None
+    ticket.status = "NEW"
+    ticket.save()
+    return HttpResponseRedirect(request.GET.get("next", reverse("home")))
+
+
+@login_required
 def editTicket(request, id):
     ticket = get_object_or_404(Ticket, id=id)
     html = "general_form.html"
@@ -85,6 +93,7 @@ def editTicket(request, id):
     return render(request, html, context)
 
 
+@login_required
 def markInvalid(request, id):
     ticket = get_object_or_404(Ticket, id=id)
     ticket.status = "INVALID"
@@ -95,12 +104,14 @@ def markInvalid(request, id):
     return HttpResponseRedirect(request.GET.get("next", reverse("home")))
 
 
+@login_required
 def markCompleted(request, id):
     user = CustomUser.objects.get(username=request.user.username)
     ticket = get_object_or_404(Ticket, id=id)
     if ticket.status == "INVALID":
         ticket.assigned_to = user
-
+    if ticket.assigned_to is None:
+        ticket.assigned_to = user
     ticket.status = "COMPLETED"
     ticket.completed_by = ticket.assigned_to
     ticket.assigned_to = None
@@ -112,10 +123,6 @@ def markCompleted(request, id):
 def logoutView(request):
     logout(request)
     return HttpResponseRedirect(reverse("login"))
-
-
-def signupView(request):
-    pass
 
 
 def loginView(request):
@@ -139,140 +146,40 @@ def loginView(request):
     )
 
 
-# def signupView(request):
-#     context = {}
-#     if request.method == "POST":
-#         form = MyUserForm(request.POST)
-#         if form.is_valid():
-#             data = form.cleaned_data
-#             new_user = MyUser.objects.create(
-#                 username=data['username'],
-#                 password=data['password'],
-#                 display_name=data['display_name'],
-#                 home_page=data['home_page'],
-#                 age=data['age']
-#             )
-#             new_user.set_password(raw_password=data['password'])
-#             new_user.save()
-#             user = authenticate(
-#                 request, username=data['username'], password=data['password']
-#             )
-#             if user:
-#                 login(request, user)
-#             return HttpResponseRedirect(reverse('home'))
-#         else:
-#             context['form'] = form
-#     else:
-#         form = MyUserForm()
-#         context['form'] = form
-#     return render(request, 'general_form.html', context)
+@login_required
+def newUser(request):
+    context = {}
+    if request.method == "POST":
+        form = CustomUserForm(request.POST)
+        if form.is_valid():
+            data = form.cleaned_data
+            new_user = CustomUser.objects.create(
+                username=data["username"],
+                password=data["password"],
+                first_name=data["first_name"],
+                last_name=data["last_name"],
+                tag_line=data["tag_line"],
+            )
+            new_user.set_password(raw_password=data["password"])
+            new_user.save()
+            user = authenticate(
+                request, username=data["username"], password=data["password"]
+            )
+            if user:
+                login(request, user)
+            return HttpResponseRedirect(reverse("home"))
+
+    else:
+        form = CustomUserForm()
+        context["form"] = form
+    return render(request, "general_form.html", context)
 
 
-# @staff_member_required(login_url='/login/?next=/addauthor/')
-# def add_author(request):
-#     html = "recipes/add_form.html"
-#     message_before = """Create a new user/author below.
-#       Each user account is associates with exactly one author name."""
-#     if request.method == "POST":
-#         form = AddAuthorForm(request.POST)
-#         if form.is_valid():
-#             data = form.cleaned_data
-#             User.objects.create_user(
-#                 username=data['username'],
-#                 password=data['password']
-#             )
-#             Author.objects.create(
-#                 name=data['author_name'],
-#                 bio=data['bio'],
-#                 user=User.objects.get(username=data['username'])
-#             )
-#         return HttpResponseRedirect(reverse('home'))
-#     form = AddAuthorForm()
-#     return render(request, html, {
-#         'form': form, 'message_before': message_before})
+def userDetail(request, id):
+    user = CustomUser.objects.get(id=id)
+    context = {"user": user}
+    context["created_tickets"] = Ticket.objects.filter(created_by=user)
+    context["assigned_tickets"] = Ticket.objects.filter(assigned_to=user)
+    context["completed_tickets"] = Ticket.objects.filter(completed_by=user)
 
-
-# def loginview(request):
-#     message_after = ""
-#     if request.method == "POST":
-#         form = LoginForm(request.POST)
-#         if form.is_valid():
-#             data = form.cleaned_data
-#             user = authenticate(
-#                 request, username=data['username'], password=data['password'])
-#             if user:
-#                 login(request, user)
-#                 return HttpResponseRedirect(
-#                     request.GET.get('next', reverse('home'))
-#                 )
-#             else:
-#                 message_after = """Credentials supplied do not match our records.
-#                     Please try again."""
-#     form = LoginForm()
-#     return render(request, 'recipes/add_form.html',
-#                   {'form': form, 'message_after': message_after})
-
-
-"""
-Templates needed:
-    menubar - home, create ticket, logout
-    index - has new tickets| in progress tickets | completed tickets (no invalid), sorted.
-        tickets details to show: 
-            title
-            assigned to
-            reported by
-            ticket age
-            ticket # (on left)
-        needs a title bar for these categories - is there a built in way to show this data?
-        look up boostrap
-    detail view - 
-        has details:
-            status
-            submitted on:
-            reported by:
-            completed by:
-            assigned to:  (new section popup when assigned?)
-        title
-        details
-        number
-        button to do available actions: assign to self / complete / mark invalid / return / edit
-        
-        
-        
-        
-Views needed
-    login
-        form: username, password, submit
-        needs the next/?= feature
-    logout
-    signup/new user
-    create ticket
-    modify ticket
-    view specific ticket
-        assign ticket
-        has edit button
-    list of all tickets
-        each has edit button
-        sorted by ticket status
-    user's detail - what they've created, completed, and filed
-    mark invalid - sets status to completed, assigns completer as person marking
-    
-
-
-
-
-User
-    username    charfield
-    password    charfield
-
-Ticket
-    title   charfield
-    details textarea
-    created at datetime - autocomplete this
-    status - choice field New, In Progress, completed, Invalid - start as new
-    created by - many-1 - autocreate - who's logged in
-    assigned to - many-1 - start as none, Foreignkey
-    completed by - many-1   Foreignkey
-
-
-"""
+    return render(request, "userDetail.html", context)

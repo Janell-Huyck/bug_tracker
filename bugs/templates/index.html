@@ -7,9 +7,9 @@
             <h3>New Tickets</h3>
             {% for ticket in new_tickets %}
             <div class="singleTicket">
-                <a href="{% url 'ticketDetailPage' id=ticket.id %}"><h4>{{ticket.title}}</h4></a>
+                <a href="{% url 'ticketDetail' id=ticket.id %}"><h4>{{ticket.title}}</h4></a>
                 <p>{{ticket.details}}</p>
-                <p>Created by: {{ticket.created_by}}</p>
+                <p>Created by: <a href="{% url 'userDetail' id=ticket.created_by.id  %}"><h4>{{ticket.created_by}}</h4></a>
                 {% include 'modify_menu.html'%}
             </div>
             {% endfor %}
@@ -19,10 +19,10 @@
             <h3>In Progress</h3>
             {% for ticket in in_progress_tickets %}
             <div class="singleTicket">
-                <a href="{% url 'ticketDetailPage' id=ticket.id %}"><h4>{{ticket.title}}</h4></a>
+                <a href="{% url 'ticketDetail' id=ticket.id %}"><h4>{{ticket.title}}</h4></a>
                 <p>{{ticket.details}}</p>
-                <p>Created by: {{ticket.created_by}}</p>
-                <p>Assigned to: {{ticket.assigned_to}}</p>
+                <p>Created by: <a href="{% url 'userDetail' id=ticket.created_by.id  %}"><h4>{{ticket.created_by}}</h4></a>
+                <p>Assigned to: <a href="{% url 'userDetail' id=ticket.assigned_to.id  %}"><h4>{{ticket.assigned_to}}</h4></a>
                 {% include 'modify_menu.html'%}
 
             </div>
@@ -33,10 +33,10 @@
             <h3>Completed</h3>
             {% for ticket in completed_tickets %}
             <div class="singleTicket">    
-                <a href="{% url 'ticketDetailPage' id=ticket.id %}"><h4>{{ticket.title}}</h4></a>
+                <a href="{% url 'ticketDetail' id=ticket.id %}"><h4>{{ticket.title}}</h4></a>
                 <p>{{ticket.details}}</p>
-                <p>Created by: {{ticket.created_by}}</p>
-                <p>Completed by: {{ticket.completed_by}}</p>
+                <p>Created by: <a href="{% url 'userDetail' id=ticket.created_by.id  %}"><h4>{{ticket.created_by}}</h4></a>
+                <p>Completed by: <a href="{% url 'userDetail' id=ticket.completed_by.id  %}"><h4>{{ticket.completed_by}}</h4></a>
                 {% include 'modify_menu.html'%}
 
             </div>
@@ -47,9 +47,9 @@
             <h3>Invalid</h3>
             {% for ticket in invalid_tickets %}
             <div class="singleTicket">    
-                <a href="{% url 'ticketDetailPage' id=ticket.id %}"><h4>{{ticket.title}}</h4></a>
+                <a href="{% url 'ticketDetail' id=ticket.id %}"><h4>{{ticket.title}}</h4></a>
                 <p>{{ticket.details}}</p>
-                <p>Created by: {{ticket.created_by}}</p>
+                <p>Created by: <a href="{% url 'userDetail' id=ticket.created_by.id  %}"><h4>{{ticket.created_by}}</h4></a>
                 {% include 'modify_menu.html'%}
 
             </div>

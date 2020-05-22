@@ -10,7 +10,9 @@
                 {% comment %} Only shows if you're logged in. {% endcomment %}
                 {% if user.is_authenticated %}
                     <a class="btn btn-primary btn-sm" href="{% url 'home'%}">Home</a>
-                    <a class="btn btn-primary btn-sm" href="{% url 'newTicketPage'%}">Make New Ticket</a>
+                    <a class="btn btn-primary btn-sm" href="{% url 'newTicketPage'%}">Write New Ticket</a>
+                    <a class="btn btn-primary btn-sm" href="{% url 'newUser'%}">Create New User</a>
+
                     <a class="btn btn-primary btn-sm" href="{% url 'logout'%}">Log Out</a>
                     <div class="signedIn">
                         Logged in as: {{user.username}}
