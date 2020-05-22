@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="singleTicket ticketDetail">
+    <h4>{{ticket.title}}</h4>
+    <p>{{ticket.details}}</p>
+    <ul>
+        <li>Status: {{ticket.status}}</li>
+        <li>Created at: {{ticket.created_time}}</li>
+        <li>Created by: {{ticket.created_by}}</li>
+        <li>Assigned to: {{ticket.assigned_to}}</li>
+        <li>Completed by: {{ticket.completed_by}}</li>
+    </ul>
+{% include 'modify_menu.html'%}
+</div>
+<br>
+
+{% endblock%}

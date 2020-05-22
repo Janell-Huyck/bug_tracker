@@ -1,0 +1,18 @@
+
+{% if ticket.assigned_to != request.user %}
+    <a class="btn btn-primary btn-sm" href="{% url 'assignSelf' id=ticket.id%}?next={{ request.path|urlencode }}">Assign Yourself</a>
+{% endif %}
+
+{% if ticket.assigned_to == request.user %}
+    <a class="btn btn-primary btn-sm" href="{% url 'returnTicket' id=ticket.id%}?next={{ request.path|urlencode }}">Return Ticket</a>
+{% endif %}
+
+
+<a class="btn btn-primary btn-sm" href="{% url 'editTicket' id=ticket.id%}?next={{ request.path|urlencode }}">Edit Ticket</a>
+{% if ticket.status != "INVALID" %}
+    <a class="btn btn-primary btn-sm" href="{% url 'markInvalid' id=ticket.id%}?next={{ request.path|urlencode }}">Mark as Invalid</a>
+{% endif %}
+
+{% if ticket.status != "COMPLETED" %}
+    <a class="btn btn-primary btn-sm" href="{% url 'markCompleted' id=ticket.id%}?next={{ request.path|urlencode }}">Mark as Completed</a>
+{% endif %}

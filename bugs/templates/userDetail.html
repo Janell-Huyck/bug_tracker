@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>{{ user.username }}</h1>
+<h2>{{ user.first_name }} {{user.last_name}}</h2>
+<p><em>{{ user.tag_line }}</em></p>
+<h3>Created Tickets</h3>
+<ul>
+{% for ticket in created_tickets %}
+    <li><a href='{% url "ticketDetail" id=ticket.id %}'>{{ticket.title}}</a></li>
+{% endfor %}
+</ul>
+<h3>Assigned Tickets</h3>
+<ul>
+{% for ticket in assigned_tickets %}
+    <li><a href='{% url "ticketDetail" id=ticket.id %}'>{{ticket.title}}</a></li>
+{% endfor %}
+</ul>
+<h3>Completed Tickets</h3>
+<ul>
+{% for ticket in completed_tickets %}
+    <li><a href='{% url "ticketDetail" id=ticket.id %}'>{{ticket.title}}</a></li>
+{% endfor %}
+</ul>
+{% endblock %}
