@@ -1,9 +1,11 @@
 from django import forms
 
+# New Ticket
 
-# class LoginForm(forms.Form):
-#     username = forms.CharField(max_length=50)
-#     password = forms.CharField(widget=forms.PasswordInput, max_length=20)
+
+class LoginForm(forms.Form):
+    username = forms.CharField(max_length=50)
+    password = forms.CharField(widget=forms.PasswordInput, max_length=20)
 
 
 # class MyUserForm(forms.Form):
@@ -18,7 +20,53 @@ from django import forms
 #     age = forms.IntegerField(required=False)
 
 
+class TicketForm(forms.Form):
+    title = forms.CharField(max_length=100)
+    details = forms.CharField(widget=forms.Textarea)
+
+
 """
+
+class Ticket(models.Model):
+    NEW = "NEW"
+    IN_PROGRESS = "IN_PROGRESS"
+    COMPLETED = "COMPLETED"
+    INVALID = "INVALID"
+
+    TICKET_STATUS_CHOICES = [
+        (NEW, "New"),
+        (IN_PROGRESS, "In Progress"),
+        (COMPLETED, "Completed"),
+        (INVALID, "Invalid"),
+    ]
+
+    created_by = models.ForeignKey(
+        CustomUser, on_delete=models.CASCADE, related_name="creator"
+    )
+    title = models.CharField(max_length=100)
+    details = models.TextField()
+    created_time = models.DateTimeField(default=timezone.now)
+    assigned_to = models.ForeignKey(
+        CustomUser,
+        on_delete=models.CASCADE,
+        default="",
+        null=True,
+        blank=True,
+        related_name="asignee",
+    )
+    completed_by = models.ForeignKey(
+        CustomUser,
+        on_delete=models.CASCADE,
+        default="",
+        null=True,
+        blank=True,
+        related_name="completor",
+    )
+    status = models.CharField(
+        max_length=12, choices=TICKET_STATUS_CHOICES, default="NEW"
+    )
+    
+
 User
     username    charfield
     password    charfield
@@ -27,19 +75,7 @@ User
     last name
     tagline
 
-Ticket
-    title   charfield
-    details textarea
-    created at datetime - autocomplete this
-    status - choice field New, In Progress, Done, Invalid - start as new
-    created by - many-1 - autocreate - who's logged in
-    assigned to - many-1 - start as none, Foreignkey
-    completed by - many-1   Foreignkey
-    
-
-
 Forms Needed:
-New Ticket
 New User Signup
 ?? change ticket status for dropdown in detail
 Edit Ticket

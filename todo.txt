@@ -1,0 +1,25 @@
+To do:
+
+Write a bug tracker application that:
+
+
+&&& figure out how to apply a basic bootstrap tag to containers
+&&& find a bootstrap for detail view - check out downloaded setup maybe?
+&&& review using bootstrap through djangogirls tutorial
+
+
+&&& create forms:
+        signup new user (make sure this is @loginrequired)
+        
+
+&&& create template for edit-menu
+&&& create template for detail view
+&&& create template for index view
+&&& create template for user view
+
+
+has a user detail page where you can see:
+    the current tickets assigned to a user
+    which tickets that user has filed
+    which tickets that user completed
+

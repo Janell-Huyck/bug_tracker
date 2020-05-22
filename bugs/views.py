@@ -1,62 +1,142 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
+from bugs.models import Ticket, CustomUser
+from django.http import HttpResponseRedirect
+from django.urls import reverse
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import logout, login, authenticate
+from bug_tracker import settings
+from bugs.forms import TicketForm, LoginForm
+from bugs.models import Ticket
+from django.utils import timezone
 
 
+@login_required
 def index(request):
-    return render(request, "index.html")
+
+    new_tickets = Ticket.objects.filter(status="NEW")
+    in_progress_tickets = Ticket.objects.filter(status="IN_PROGRESS")
+    completed_tickets = Ticket.objects.filter(status="COMPLETED")
+    invalid_tickets = Ticket.objects.filter(status="INVALID")
+    context = {
+        "new_tickets": new_tickets,
+        "in_progress_tickets": in_progress_tickets,
+        "completed_tickets": completed_tickets,
+        "invalid_tickets": invalid_tickets,
+    }
+    return render(request, "index.html", context)
 
 
-def loginView(request):
-    pass
+@login_required
+def newTicketView(request):
+    context = {"creator": request.user}
+    html = "general_form.html"
+    if request.method == "POST":
+        form = TicketForm(request.POST)
+        if form.is_valid():
+            data = form.cleaned_data
+            time = timezone.now()
+            ticket = Ticket.objects.create(
+                title=data["title"],
+                details=data["details"],
+                created_by=request.user,
+                created_time=time,
+                status="NEW",
+            )
+        return HttpResponseRedirect(
+            reverse("ticketDetailPage", kwargs={"id": ticket.id})
+        )
+    form = TicketForm()
+    context["form"] = form
+    return render(request, html, context)
 
 
+@login_required
+def ticketDetailView(request, id):
+    ticket = get_object_or_404(Ticket, id=id)
+    context = {"ticket": ticket}
+    return render(request, "ticketDetail.html", context)
+
+
+@login_required
+def assignSelf(request, id):
+    ticket = get_object_or_404(Ticket, id=id)
+    assign_to = request.user
+    ticket.assigned_to = assign_to
+    ticket.completed_by = None
+    ticket.status = "IN_PROGRESS"
+    ticket.save()
+    return HttpResponseRedirect(request.GET.get("next", reverse("home")))
+
+
+@login_required
+def editTicket(request, id):
+    ticket = get_object_or_404(Ticket, id=id)
+    html = "general_form.html"
+    if request.method == "POST":
+        form = TicketForm(request.POST)
+        if form.is_valid():
+            data = form.cleaned_data
+            ticket.title = data["title"]
+            ticket.details = data["details"]
+            ticket.save()
+            return HttpResponseRedirect(request.GET.get("next", reverse("home")))
+    form = TicketForm(initial={"title": ticket.title, "details": ticket.details})
+    context = {"form": form}
+    return render(request, html, context)
+
+
+def markInvalid(request, id):
+    ticket = get_object_or_404(Ticket, id=id)
+    ticket.status = "INVALID"
+    ticket.assigned_to = None
+    ticket.completed_by = None
+    ticket.save()
+
+    return HttpResponseRedirect(request.GET.get("next", reverse("home")))
+
+
+def markCompleted(request, id):
+    user = CustomUser.objects.get(username=request.user.username)
+    ticket = get_object_or_404(Ticket, id=id)
+    if ticket.status == "INVALID":
+        ticket.assigned_to = user
+
+    ticket.status = "COMPLETED"
+    ticket.completed_by = ticket.assigned_to
+    ticket.assigned_to = None
+    ticket.save()
+    return HttpResponseRedirect(request.GET.get("next", reverse("home")))
+
+
+@login_required
 def logoutView(request):
-    pass
+    logout(request)
+    return HttpResponseRedirect(reverse("login"))
 
 
 def signupView(request):
     pass
 
 
-# from django.http import HttpResponseRedirect
-# from django.urls import reverse
-# from django.contrib.auth.decorators import login_required
-# from django.contrib.auth import logout, login, authenticate
-# from django.shortcuts import render
-# from microscope import settings
-# from my_user.forms import LoginForm, MyUserForm
-# from my_user.models import MyUser
-
-
-# @login_required
-# def index(request):
-#     context = {'settings': settings.AUTH_USER_MODEL}
-#     return render(request, 'index.html', context)
-
-
-# def logoutView(request):
-#     logout(request)
-#     return HttpResponseRedirect(reverse('loginPage'))
-
-
-# def loginView(request):
-#     message_after = ""
-#     if request.method == "POST":
-#         form = LoginForm(request.POST)
-#         if form.is_valid():
-#             data = form.cleaned_data
-#             user = authenticate(
-#                 request, username=data['username'], password=data['password'])
-#             if user is not None:
-#                 login(request, user)
-#                 return HttpResponseRedirect(
-#                     request.GET.get('next', reverse('home'))
-#                 )
-#             else:
-#                 message_after = """Credentials supplied do not match our records.
-#                     Please try again."""
-#     form = LoginForm()
-#     return render(request, 'general_form.html',
-#                   {'form': form, 'message_after': message_after})
+def loginView(request):
+    message_after = ""
+    if request.method == "POST":
+        form = LoginForm(request.POST)
+        if form.is_valid():
+            data = form.cleaned_data
+            user = authenticate(
+                request, username=data["username"], password=data["password"]
+            )
+            if user is not None:
+                login(request, user)
+                return HttpResponseRedirect(request.GET.get("next", reverse("home")))
+            else:
+                message_after = """Credentials supplied do not match our records.
+                    Please try again."""
+    form = LoginForm()
+    return render(
+        request, "general_form.html", {"form": form, "message_after": message_after}
+    )
 
 
 # def signupView(request):
@@ -112,35 +192,6 @@ def signupView(request):
 #         'form': form, 'message_before': message_before})
 
 
-# @login_required
-# def add_recipe(request):
-#     html = "recipes/add_form.html"
-#        if request.method == "POST":
-#             form = StaffAddRecipeForm(request.POST)
-#             if form.is_valid():
-#                 data = form.cleaned_data
-#                 Recipe.objects.create(
-#                     title=data['title'],
-#                     author=data['author'],
-#                     description=data['description'],
-#                     time_required=data['time_required'],
-#                     instructions=data['instructions'],
-#                 )
-#             return HttpResponseRedirect(reverse('home'))
-#         form = StaffAddRecipeForm()
-#         return render(request, html, {
-#             'form': form,
-#         })
-
-
-# def author_detail(request, pk):
-#     author = get_object_or_404(Author, pk=pk)
-#     recipes = Recipe.objects.filter(
-#         author=author).order_by('title')
-#     return render(request, 'recipes/author_detail.html', {
-#         'author': author, 'recipes': recipes, })
-
-
 # def loginview(request):
 #     message_after = ""
 #     if request.method == "POST":
@@ -165,7 +216,7 @@ def signupView(request):
 """
 Templates needed:
     menubar - home, create ticket, logout
-    index - has new tickets| in progress tickets | done tickets (no invalid), sorted.
+    index - has new tickets| in progress tickets | completed tickets (no invalid), sorted.
         tickets details to show: 
             title
             assigned to
@@ -218,7 +269,7 @@ Ticket
     title   charfield
     details textarea
     created at datetime - autocomplete this
-    status - choice field New, In Progress, Done, Invalid - start as new
+    status - choice field New, In Progress, completed, Invalid - start as new
     created by - many-1 - autocreate - who's logged in
     assigned to - many-1 - start as none, Foreignkey
     completed by - many-1   Foreignkey

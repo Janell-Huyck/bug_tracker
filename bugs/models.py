@@ -15,13 +15,13 @@ class CustomUser(AbstractUser):
 class Ticket(models.Model):
     NEW = "NEW"
     IN_PROGRESS = "IN_PROGRESS"
-    DONE = "DONE"
+    COMPLETED = "COMPLETED"
     INVALID = "INVALID"
 
     TICKET_STATUS_CHOICES = [
         (NEW, "New"),
         (IN_PROGRESS, "In Progress"),
-        (DONE, "Done"),
+        (COMPLETED, "Completed"),
         (INVALID, "Invalid"),
     ]
 
@@ -56,8 +56,6 @@ class Ticket(models.Model):
 
     def assign_ticket(self, username):
         self.assigned_to = CustomUser.objects.get(username=username)
-        self.status = "IN_PROGRESS"
-        self.completed_by = ""
         self.save()
 
     def change_status(self, new_status):
@@ -65,13 +63,5 @@ class Ticket(models.Model):
         self.save()
 
     def complete_ticket(self, username):
-        self.status = "DONE"
-        self.assigned_to = ""
         self.completed_by = CustomUser.objects.get(username=username)
-        self.save()
-
-    def mark_invalid(self):
-        self.status = "INVALID"
-        self.assigned_to = ""
-        self.completed_by = ""
         self.save()

@@ -1,16 +1,55 @@
-body {
-    background-color: green;
-}
 
 body {
-    background-color: lightgreen;
-    /* background-image: url('../img/fishermen.jpg'); */
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: cover;
+
     display: flex;
     flex-direction: column;
-    align-items: flex-end;
+    }
+footer{
+  font-size: small;
+}
+body h1 {
+  text-align: center;
+}
+
+.allTickets {
+  width: 100%;
+
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+}
+
+.ticketGroup {
+  display: flex;
+  flex-direction: column;
+  margin: 5px;
+  width: 30%;
+  border: 1px solid black;
+  }
+
+.ticketGroup p {
+  font-size: medium;
+  margin: 5px;
+}
+
+.singleTicket {
+  margin: 5px;
+  padding: 5px;
+  border: 1px solid #333;
+  background-color: lightgrey;
+}
+
+.singleTicket ul li {
+  margin-top: -10px;
+  margin-bottom: 0;
+  padding-top: -10;
+  padding-bottom: 0;
+}
+
+.ticketDetail {
+  width: 80%;
+  align-self: center;
+  margin: 20px;
 }
 
 /* Add a black background color to the top navigation */
@@ -34,21 +73,21 @@ body {
   font-size: 17px;
 }
 
-
+/* 
 /* Change the color of links on hover */
-.topnav a:hover {
+ .topnav a:hover {
   background-color: #ddd;
   color: black;
 }
 
 /* Add a color to the active/current link */
-.topnav a.active {
+ .topnav a.active {
   background-color: rgb(236, 100, 10);
   color: white;
-}
+} 
 
 /* The "signed in as" tag in header */
-/* .signedIn {
+.signedIn {
   align-self: flex-end;
   justify-self: flex-end;
   float: right;
@@ -56,7 +95,7 @@ body {
   text-align: center;
   text-decoration: none;
   font-size: 17px;
-} */
+}
 
 .userDetails {
   display: flex;

@@ -1,1 +1,62 @@
-<p> Hello </p>
+{% extends 'base.html'%}
+
+{% block content %}
+
+    <div class="allTickets">
+        <div class="ticketGroup">
+            <h3>New Tickets</h3>
+            {% for ticket in new_tickets %}
+            <div class="singleTicket">
+                <a href="{% url 'ticketDetailPage' id=ticket.id %}"><h4>{{ticket.title}}</h4></a>
+                <p>{{ticket.details}}</p>
+                <p>Created by: {{ticket.created_by}}</p>
+                {% include 'modify_menu.html'%}
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="ticketGroup">
+            <h3>In Progress</h3>
+            {% for ticket in in_progress_tickets %}
+            <div class="singleTicket">
+                <a href="{% url 'ticketDetailPage' id=ticket.id %}"><h4>{{ticket.title}}</h4></a>
+                <p>{{ticket.details}}</p>
+                <p>Created by: {{ticket.created_by}}</p>
+                <p>Assigned to: {{ticket.assigned_to}}</p>
+                {% include 'modify_menu.html'%}
+
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="ticketGroup">
+            <h3>Completed</h3>
+            {% for ticket in completed_tickets %}
+            <div class="singleTicket">    
+                <a href="{% url 'ticketDetailPage' id=ticket.id %}"><h4>{{ticket.title}}</h4></a>
+                <p>{{ticket.details}}</p>
+                <p>Created by: {{ticket.created_by}}</p>
+                <p>Completed by: {{ticket.completed_by}}</p>
+                {% include 'modify_menu.html'%}
+
+            </div>
+            {% endfor %}
+        </div>            
+                
+        <div class="ticketGroup">
+            <h3>Invalid</h3>
+            {% for ticket in invalid_tickets %}
+            <div class="singleTicket">    
+                <a href="{% url 'ticketDetailPage' id=ticket.id %}"><h4>{{ticket.title}}</h4></a>
+                <p>{{ticket.details}}</p>
+                <p>Created by: {{ticket.created_by}}</p>
+                {% include 'modify_menu.html'%}
+
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+{% endblock%}
+
+

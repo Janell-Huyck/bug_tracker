@@ -1,0 +1,5 @@
+
+<a class="btn btn-primary btn-sm" href="{% url 'assignSelf' id=ticket.id%}?next={{ request.path|urlencode }}">Assign Yourself</a>
+<a class="btn btn-primary btn-sm" href="{% url 'editTicket' id=ticket.id%}?next={{ request.path|urlencode }}">Edit Ticket</a>
+<a class="btn btn-primary btn-sm" href="{% url 'markInvalid' id=ticket.id%}?next={{ request.path|urlencode }}">Mark as Invalid</a>
+<a class="btn btn-primary btn-sm" href="{% url 'markCompleted' id=ticket.id%}?next={{ request.path|urlencode }}">Mark as Completed</a>
